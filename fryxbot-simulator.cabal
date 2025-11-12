@@ -1,0 +1,77 @@
+cabal-version: 2.2
+
+-- This file has been generated from package.yaml by hpack version 0.37.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           fryxbot-simulator
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/rcdickerson/fryxbot-simulator#readme>
+homepage:       https://github.com/rcdickerson/fryxbot-simulator#readme
+bug-reports:    https://github.com/rcdickerson/fryxbot-simulator/issues
+author:         Robert Dickerson
+maintainer:     robdickerson@augustana.edu
+copyright:      2025 Robert Dickerson
+license:        BSD-3-Clause
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/rcdickerson/fryxbot-simulator
+
+library
+  exposed-modules:
+      Beacon
+      BotCommand
+      BotController
+      BotFacing
+      BotState
+      Field
+      FieldParser
+      Fryxbot
+      FryxbotSimulator
+      Game
+      Pos
+      Team
+  other-modules:
+      Paths_fryxbot_simulator
+  autogen-modules:
+      Paths_fryxbot_simulator
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      base >=4.7 && <5
+    , brick >=2.8 && <2.10
+    , containers
+    , megaparsec
+    , random
+    , text
+    , vty
+    , vty-crossplatform
+  default-language: Haskell2010
+
+executable fryxbot-simulator-exe
+  main-is: Main.hs
+  other-modules:
+      RandController
+      Paths_fryxbot_simulator
+  autogen-modules:
+      Paths_fryxbot_simulator
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , brick >=2.8 && <2.10
+    , containers
+    , fryxbot-simulator
+    , megaparsec
+    , random
+    , text
+    , vty
+    , vty-crossplatform
+  default-language: Haskell2010
