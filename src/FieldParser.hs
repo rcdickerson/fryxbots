@@ -42,7 +42,7 @@ handleCellKind field row col item =
     Building -> setBuilding field pos
     BlueBase -> setBlueBase field pos
     GoldBase -> setGoldBase field pos
-    Artifacts i -> setArtifacts field pos i
+    Fossils i -> setFossils field pos i
     _ -> field
 
 fieldRow :: Int -> Parser [CellKind]
@@ -60,7 +60,7 @@ itemParser = do
     '+' -> return BlueBase
     '-' -> return GoldBase
     _ -> return $ if isDigit c
-                    then Artifacts (digitToInt c)
+                    then Fossils (digitToInt c)
                     else Open
 
 parseInt :: Parser Int

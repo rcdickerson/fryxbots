@@ -94,7 +94,7 @@ drawGrid game = withBorderStyle BS.unicodeBold
                       GoldBase -> withAttr (attrName "goldBase") (str "g ")
                       BlueBeacon i -> withAttr (attrName "blueBeacon") (intToSmall i)
                       GoldBeacon i -> withAttr (attrName "goldBeacon") (intToSmall i)
-                      Artifacts i -> withAttr (attrName "cyan") (intToStr i)
+                      Fossils i -> withAttr (attrName "cyan") (intToStr i)
                       BlueBot facing -> withAttr (attrName "blueBot") (str $ faceStr facing)
                       GoldBot facing -> withAttr (attrName "goldBot") (str $ faceStr facing)
                       Open -> withAttr (attrName "gray") (str ". ")

@@ -14,10 +14,10 @@ module Field
   , isGoldBase
   , lookupBotPos
   , mkField
-  , setArtifacts
   , setBotPos
   , setBlueBase
   , setBuilding
+  , setFossils
   , setGoldBase
   , stepBlueBot
   , stepGoldBot
@@ -80,7 +80,7 @@ data CellKind = Building
               | GoldBot BotFacing
               | BlueBeacon Int
               | GoldBeacon Int
-              | Artifacts Int
+              | Fossils Int
               | Open
 
 setBuilding :: (BotController b, BotController g) => Field b g -> Pos -> Field b g
@@ -98,8 +98,8 @@ setGoldBase field pos = field {
   goldBase = Set.insert pos $ goldBase field
 }
 
-setArtifacts :: (BotController b, BotController g) => Field b g -> Pos -> Int -> Field b g
-setArtifacts field pos i = field {
+setFossils :: (BotController b, BotController g) => Field b g -> Pos -> Int -> Field b g
+setFossils field pos i = field {
   artifacts = Map.insert pos i $ artifacts field
 }
 
@@ -240,7 +240,7 @@ cellKind field pos =
   else if isBlueBotAt field pos then BlueBot blueFacing
   else if isGoldBotAt field pos then GoldBot goldFacing
   else if Map.member pos (artifacts field) then
-    Artifacts $ fromJust $ Map.lookup pos (artifacts field)
+    Fossils $ fromJust $ Map.lookup pos (artifacts field)
   else if Set.member pos (blueBase field) then BlueBase
   else if Set.member pos (goldBase field) then GoldBase
   else if Map.member pos (beacons field) then
@@ -270,7 +270,7 @@ showCell field pos = case cellKind field pos of
   GoldBot _    -> 'G'
   BlueBeacon _ -> '+'
   GoldBeacon _ -> '-'
-  Artifacts i  -> if i > 9 then '*' else intToDigit i
+  Fossils i    -> if i > 9 then '*' else intToDigit i
   Open         -> '.'
 
 showRow :: (BotController b, BotController g) => Field b g -> Int -> String
