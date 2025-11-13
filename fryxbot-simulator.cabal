@@ -28,6 +28,7 @@ library
       BotCommand
       BotController
       BotFacing
+      BotSensing
       BotState
       Field
       FieldParser

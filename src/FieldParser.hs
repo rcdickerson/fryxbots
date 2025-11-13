@@ -33,7 +33,7 @@ fieldParser = do
       foldl (\field (col, item) -> handleCellKind field row col item)
         field
         (zip [0..] itemRow))
-    (mkField (width - 1) (height - 1)) (zip [0..] items)
+    (mkField width height) (zip [0..] items)
 
 handleCellKind :: (BotController b, BotController g) => Field b g -> Int -> Int -> CellKind -> Field b g
 handleCellKind field row col item =

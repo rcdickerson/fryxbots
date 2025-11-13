@@ -72,11 +72,11 @@ drawGrid game = withBorderStyle BS.unicodeBold
   $ B.borderWithLabel (str "THE FRYXELL WARS")
   $ vBox rows
   where
-    rows = [hBox $ drawRow row | row <- [0..(height.field) game]]
+    rows = [hBox $ drawRow row | row <- [0..(height.field) game - 1]]
 
     drawRow :: Int -> [Widget Name]
     drawRow row =
-      let cells = [drawCoord (mkPos col row) | col <- [0..(width.field) game]]
+      let cells = [drawCoord (mkPos col row) | col <- [0..(width.field) game - 1]]
       in if row `mod` 2 == 1 then (str " "):cells else cells
 
     faceStr :: BotFacing -> String
