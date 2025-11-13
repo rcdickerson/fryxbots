@@ -8,12 +8,14 @@ module Field
   , addBlueBot
   , addGoldBot
   , cellKind
+  , deleteBotById
   , getBlueBots
   , getGoldBots
   , isBlocked
   , isBlueBase
   , isGoldBase
   , lookupBotPos
+  , lookupBotTeam
   , mkField
   , setBotPos
   , setBlueBase
@@ -26,10 +28,8 @@ module Field
   ) where
 
 import           Beacon
-import           BotCommand
 import           BotController
 import           BotFacing
-import           BotState
 import           Data.Char (intToDigit)
 import           Data.List (intercalate, intersperse)
 import           Data.Map (Map)
@@ -120,7 +120,8 @@ addBlueBot field bot pos =
       , positionsByBot = Map.insert botId pos $ positionsByBot field
       }
 
-addGoldBot :: (BotController b, BotController g) => Field b g -> Fryxbot g -> Pos -> Field b g
+addGoldBot :: (BotController b, BotController g) =>
+               Field b g -> Fryxbot g -> Pos -> Field b g
 addGoldBot field bot pos =
   let botId = Bot.id bot
   in
@@ -132,7 +133,43 @@ addGoldBot field bot pos =
       , positionsByBot = Map.insert botId pos $ positionsByBot field
       }
 
-updateBlueBot :: (BotController b, BotController g) => Field b g -> Fryxbot b -> Field b g
+deleteBlueBotById :: (BotController b, BotController g) =>
+                      Field b g -> Int -> Field b g
+deleteBlueBotById field botId =
+  let pos = lookupBotPos field botId
+  in field
+    { blueBotsById   = Map.delete botId $ blueBotsById   field
+    , botsByPosition = Map.delete pos   $ botsByPosition field
+    , positionsByBot = Map.delete botId $ positionsByBot field
+    }
+
+deleteGoldBotById :: (BotController b, BotController g) =>
+                 Field b g -> Int -> Field b g
+deleteGoldBotById field botId =
+  let pos = lookupBotPos field botId
+  in field
+    { goldBotsById   = Map.delete botId $ goldBotsById   field
+    , botsByPosition = Map.delete pos   $ botsByPosition field
+    , positionsByBot = Map.delete botId $ positionsByBot field
+    }
+
+deleteBotById :: (BotController b, BotController g) =>
+             Field b g -> Int -> Field b g
+deleteBotById field botId = case lookupBotTeam field botId of
+      Blue -> deleteBlueBotById field botId
+      Gold -> deleteGoldBotById field botId
+
+lookupBotTeam :: (BotController b, BotController g) =>
+                 Field b g -> Int -> Team
+lookupBotTeam field botId =
+  case Map.lookup botId (blueBotsById field) of
+    Just bot -> Bot.team bot
+    Nothing  -> case Map.lookup botId (goldBotsById field) of
+                  Just bot -> Bot.team bot
+                  Nothing  -> error $ "No bot with id: " ++ (show botId)
+
+updateBlueBot :: (BotController b, BotController g) =>
+                  Field b g -> Fryxbot b -> Field b g
 updateBlueBot field bot =
   let botId = Bot.id bot
       botsMap = blueBotsById field
@@ -140,7 +177,8 @@ updateBlueBot field bot =
      then field { blueBotsById = Map.insert botId bot botsMap }
      else error $ "No bot registered with ID: " ++ show botId
 
-updateGoldBot :: (BotController b, BotController g) => Field b g -> Fryxbot g -> Field b g
+updateGoldBot :: (BotController b, BotController g) =>
+                  Field b g -> Fryxbot g -> Field b g
 updateGoldBot field bot =
   let botId = Bot.id bot
   in case Map.lookup botId (goldBotsById field) of

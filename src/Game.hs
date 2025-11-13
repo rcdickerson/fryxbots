@@ -59,7 +59,8 @@ executeRound game =
       goldBots = (Field.getGoldBots . field) game
       afterBlueMoves = foldl stepBlueBot (field game) blueBots
       afterGoldMoves = foldl stepGoldBot afterBlueMoves goldBots
-  in game { field = afterGoldMoves }
+      cleanedField = removeDeadBots afterGoldMoves
+  in game { field = cleanedField }
 
 stepBlueBot :: (BotController b, BotController g) => Field b g -> Fryxbot b -> Field b g
 stepBlueBot field bot =
@@ -119,3 +120,18 @@ destroyBeacon field bot =
   let botPos   = Field.lookupBotPos field (Bot.id bot)
       beacons' = Map.delete botPos (Field.beacons field)
    in field { Field.beacons = beacons' }
+
+removeDeadBots :: (BotController b, BotController g) => Field b g -> Field b g
+removeDeadBots field =
+  let deadBlueIds = map (Bot.id) $ filter (isDead field) (Field.getBlueBots field)
+      deadGoldIds = map (Bot.id) $ filter (isDead field) (Field.getGoldBots field)
+  in foldl Field.deleteBotById field $ deadBlueIds ++ deadGoldIds
+
+isDead :: (BotController b, BotController g) => Field b g -> Fryxbot x -> Bool
+isDead field bot =
+  let botId       = Bot.id bot
+      botPos      = Field.lookupBotPos field botId
+      botTeam     = Field.lookupBotTeam field botId
+      inEnemyBase = Field.isBlueBase field botPos && botTeam == Gold
+                 || Field.isGoldBase field botPos && botTeam == Blue
+  in inEnemyBase
