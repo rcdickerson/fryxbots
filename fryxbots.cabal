@@ -4,11 +4,11 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 
-name:           fryxbot-simulator
+name:           fryxbots
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/rcdickerson/fryxbot-simulator#readme>
-homepage:       https://github.com/rcdickerson/fryxbot-simulator#readme
-bug-reports:    https://github.com/rcdickerson/fryxbot-simulator/issues
+description:    Please see the README on GitHub at <https://github.com/rcdickerson/fryxbots#readme>
+homepage:       https://github.com/rcdickerson/fryxbots#readme
+bug-reports:    https://github.com/rcdickerson/fryxbots/issues
 author:         Robert Dickerson
 maintainer:     robdickerson@augustana.edu
 copyright:      2025 Robert Dickerson
@@ -20,7 +20,7 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/rcdickerson/fryxbot-simulator
+  location: https://github.com/rcdickerson/fryxbots
 
 library
   exposed-modules:
@@ -38,9 +38,9 @@ library
       Pos
       Team
   other-modules:
-      Paths_fryxbot_simulator
+      Paths_fryxbots
   autogen-modules:
-      Paths_fryxbot_simulator
+      Paths_fryxbots
   hs-source-dirs:
       src
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
@@ -55,13 +55,13 @@ library
     , vty-crossplatform
   default-language: Haskell2010
 
-executable fryxbot-simulator-exe
+executable fryxbots-exe
   main-is: Main.hs
   other-modules:
       RandController
-      Paths_fryxbot_simulator
+      Paths_fryxbots
   autogen-modules:
-      Paths_fryxbot_simulator
+      Paths_fryxbots
   hs-source-dirs:
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
@@ -69,7 +69,7 @@ executable fryxbot-simulator-exe
       base >=4.7 && <5
     , brick >=2.8 && <2.10
     , containers
-    , fryxbot-simulator
+    , fryxbots
     , megaparsec
     , random
     , text
