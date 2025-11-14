@@ -17,7 +17,7 @@ instance BotController RandController where
   initialize rc botId _ = rc { botId = botId
                              , rndList = randomRs (0,5) (mkStdGen botId) }
 
-  stepBot rc st =
+  stepBot rc facing sensing st =
     let (randInt:rs) = (rndList rc)
         rc' = rc { rndList = rs }
         command = if randInt == 0 then RotateLeft

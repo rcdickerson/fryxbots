@@ -37,5 +37,5 @@ mkBot id team controller = Fryxbot
 
 invokeController :: BotController c => Fryxbot c -> Fryxbot c
 invokeController bot =
-  let (cont', state') = stepBot (controller bot) (state bot)
+  let (cont', state') = stepBot (controller bot) (facing bot) (sensing bot) (state bot)
   in bot { state = state', controller = cont' }
