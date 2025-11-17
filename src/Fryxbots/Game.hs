@@ -76,8 +76,8 @@ stepBlueBots field = foldl step field $ Field.getBlueBots field
              MoveForward -> moveBotForward field' bot'
              DropBeacon kind -> dropBeacon field' bot' kind
              DestroyBeacon -> destroyBeacon field' bot'
-             PickUpFossil -> field'
-             DropFossil -> field'
+             PickUpFossil -> pickUpFossil field' bot' Field.updateBlueBot
+             DropFossil -> dropFossil field' bot' Field.updateBlueBot
 
 stepGoldBots :: (Controller b, Controller g) => Field b g -> Field b g
 stepGoldBots field = foldl step field $ Field.getGoldBots field
@@ -95,8 +95,8 @@ stepGoldBots field = foldl step field $ Field.getGoldBots field
              MoveForward -> moveBotForward field' bot'
              DropBeacon kind -> dropBeacon field' bot' kind
              DestroyBeacon -> destroyBeacon field' bot'
-             PickUpFossil -> field'
-             DropFossil -> field'
+             PickUpFossil -> pickUpFossil field' bot' Field.updateGoldBot
+             DropFossil -> dropFossil field' bot' Field.updateGoldBot
 
 
 moveBotForward :: (Controller b, Controller g) => Field b g -> Bot x -> Field b g
@@ -132,9 +132,20 @@ destroyBeacon field bot =
 
 removeDeadBots :: (Controller b, Controller g) => Field b g -> Field b g
 removeDeadBots field =
-  let deadBlueIds = map (Bot.id) $ filter (isDead field) (Field.getBlueBots field)
-      deadGoldIds = map (Bot.id) $ filter (isDead field) (Field.getGoldBots field)
-  in foldl Field.deleteBotById field $ deadBlueIds ++ deadGoldIds
+  let deadBlues = filter (isDead field) (Field.getBlueBots field)
+      deadGolds = filter (isDead field) (Field.getGoldBots field)
+      removedBlues = foldl removeBot field deadBlues
+  in foldl removeBot removedBlues deadGolds
+
+removeBot :: (Controller b, Controller g) => Field b g -> Bot x -> Field b g
+removeBot field bot =
+  let botId  = Bot.id bot
+      botPos = Field.lookupBotPos field botId
+      fossilCount = Field.getFossilCount field botPos
+      field' = Field.deleteBotById field botId
+  in if Bot.hasFossil bot
+    then Field.setFossils field' botPos $ fossilCount + 1
+    else field'
 
 isDead :: (Controller b, Controller g) => Field b g -> Bot x -> Bool
 isDead field bot =
@@ -163,3 +174,33 @@ sensingForBotId field botId =
          { Sense.current = Field.scanHex field botPos
          , Sense.adjacent = \dir -> Field.scanHex field $ adjacent dir botPos
          }
+
+pickUpFossil :: (Controller b, Controller g) =>
+                     Field b g ->
+                     Bot x ->
+                     (Field b g -> Bot x -> Field b g) ->
+                     Field b g
+pickUpFossil field bot botUpdater =
+  let botId = Bot.id bot
+      botPos = Field.lookupBotPos field botId
+      fossilCount = Field.getFossilCount field botPos
+      field' = Field.setFossils field botPos (fossilCount - 1)
+      bot' = bot { Bot.hasFossil = True }
+  in if fossilCount > 0 && not (Bot.hasFossil bot)
+       then botUpdater field' bot'
+       else field
+
+dropFossil :: (Controller b, Controller g) =>
+                     Field b g ->
+                     Bot x ->
+                     (Field b g -> Bot x -> Field b g) ->
+                     Field b g
+dropFossil field bot botUpdater =
+  let botId = Bot.id bot
+      botPos = Field.lookupBotPos field botId
+      fossilCount = Field.getFossilCount field botPos
+      field' = Field.setFossils field botPos (fossilCount + 1)
+      bot' = bot { Bot.hasFossil = False }
+  in if Bot.hasFossil bot
+       then botUpdater field' bot'
+       else field

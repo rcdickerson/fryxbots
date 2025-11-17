@@ -22,6 +22,7 @@ data Bot c where
           , sensing :: Sensing
           , state :: State
           , team :: Team
+          , hasFossil :: False
           , controller :: c
           } -> Bot c
 
@@ -32,10 +33,11 @@ mkBot id team controller = Bot
   , sensing = emptySensing
   , state = St.empty
   , team = team
+  , hasFossil = True
   , controller = controller
   }
 
 invokeController :: Controller c => Bot c -> Bot c
 invokeController bot =
-  let (cont', state') = stepBot (controller bot) (facing bot) (sensing bot) (state bot)
+  let (cont', state') = stepBot (controller bot) (facing bot) (sensing bot) (hasFossil bot) (state bot)
   in bot { state = state', controller = cont' }

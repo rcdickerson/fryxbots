@@ -9,4 +9,4 @@ import Fryxbots.Team
 
 class Controller a where
   initialize :: a -> Int -> Team -> a
-  stepBot :: a -> Facing -> Sensing -> State -> (a, State)
+  stepBot :: a -> Facing -> Sensing -> Bool -> State -> (a, State)

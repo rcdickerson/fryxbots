@@ -9,6 +9,7 @@ module Fryxbots.Field
   , cellKind
   , deleteBotById
   , getBlueBots
+  , getFossilCount
   , getGoldBots
   , isBlocked
   , isBlueBase
@@ -51,7 +52,7 @@ data Field b g where
            , goldBotsById   :: Map Int (Bot g)
            , botsByPosition :: Map Pos Int
            , positionsByBot :: Map Int Pos
-           , artifacts      :: Map Pos Int
+           , fossils        :: Map Pos Int
            , buildings      :: Set Pos
            , blueBase       :: Set Pos
            , goldBase       :: Set Pos
@@ -67,7 +68,7 @@ mkField width height = Field
   , goldBotsById = Map.empty
   , botsByPosition = Map.empty
   , positionsByBot = Map.empty
-  , artifacts = Map.empty
+  , fossils = Map.empty
   , buildings = Set.empty
   , blueBase = Set.empty
   , goldBase = Set.empty
@@ -103,11 +104,19 @@ setGoldBase field pos = field {
   goldBase = Set.insert pos $ goldBase field
 }
 
+getFossilCount :: (Controller b, Controller g) =>
+              Field b g -> Pos -> Int
+getFossilCount field pos =
+  case Map.lookup pos $ fossils field of
+    Nothing -> 0
+    Just i  -> i
+
 setFossils :: (Controller b, Controller g) =>
               Field b g -> Pos -> Int -> Field b g
-setFossils field pos i = field {
-  artifacts = Map.insert pos i $ artifacts field
-}
+setFossils field pos i =
+  case i of
+    0 -> field { fossils = Map.delete pos $ fossils field }
+    _ -> field { fossils = Map.insert pos i $ fossils field }
 
 isBlueBase :: (Controller b, Controller g) =>
               Field b g -> Pos -> Bool
@@ -277,7 +286,7 @@ scanHex field pos =
         { Sense.beacon = \team -> beaconAt field team pos
         , Sense.isBuilding = isBuildingAt field pos
         , Sense.isBase = \team -> isBase field team pos
-        , Sense.numFossils = fromJust $ Map.lookup pos (artifacts field)
+        , Sense.numFossils = fromJust $ Map.lookup pos (fossils field)
         }
 
 cellKind :: (Controller b, Controller g) =>
@@ -286,8 +295,8 @@ cellKind field pos =
   if Set.member pos (buildings field) then Building
   else if isBlueBotAt field pos then BlueBot blueFacing
   else if isGoldBotAt field pos then GoldBot goldFacing
-  else if Map.member pos (artifacts field) then
-    Fossils $ fromJust $ Map.lookup pos (artifacts field)
+  else if Map.member pos (fossils field) then
+    Fossils $ fromJust $ Map.lookup pos (fossils field)
   else if Set.member pos (blueBase field) then BlueBase
   else if Set.member pos (goldBase field) then GoldBase
   else if Map.member pos (blueBeacons field) then
