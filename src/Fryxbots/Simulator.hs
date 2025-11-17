@@ -30,7 +30,7 @@ type Name = ()
 
 data SimulatorState b g = SimulatorState
   { game :: Game b g
-  , speed :: TVar Int
+  , tickDelay :: TVar Int
   }
 
 app :: (Controller b, Controller g) => App (SimulatorState b g) Tick Name
@@ -45,10 +45,10 @@ app = App
 runSimulator :: (Controller b, Controller g) => b -> g -> IO ()
 runSimulator blueController goldController = do
   chan  <- newBChan 10
-  speed <- atomically $ newTVar 100000
+  tickDelay <- atomically $ newTVar 100000
   _ <- forkIO $ forever $ do
     writeBChan chan Tick
-    delay <- atomically $ readTVar speed
+    delay <- atomically $ readTVar tickDelay
     threadDelay delay
   fieldStr <- readFile "worlds/example1.world"
   field <- parseField $ pack fieldStr
@@ -56,7 +56,7 @@ runSimulator blueController goldController = do
     Left err -> putStrLn err
     Right field -> do
       let simState = SimulatorState { game = mkGame blueController goldController field
-                                    , speed = speed
+                                    , tickDelay = tickDelay
                                     }
       let buildVty = VCP.mkVty V.defaultConfig
       initialVty <- buildVty
@@ -78,18 +78,40 @@ data SpeedChange = SpeedUp | SlowDown
 changeSpeed :: SpeedChange -> EventM Name (SimulatorState b g) ()
 changeSpeed change = do
   simState <- get
-  curSpeed <- liftIO $ atomically $ readTVar (speed simState)
-  let newSpeed = case change of
-                   SpeedUp  -> curSpeed - 10000
-                   SlowDown -> curSpeed + 10000
-  liftIO $ atomically $ writeTVar (speed simState) newSpeed
-  return ()
+  curTickDelay <- liftIO $ atomically $ readTVar (tickDelay simState)
+  case change of
+    SpeedUp ->
+      let newTickDelay = curTickDelay - 10000
+      in if newTickDelay > 0
+        then do
+          liftIO $ atomically $ writeTVar (tickDelay simState) newTickDelay
+          return ()
+        else do
+          let curGame = game simState
+          let curJump = roundJump curGame
+          let game' = curGame { roundJump = curJump + 10 }
+          modify $ \st -> st { game = game' }
+    SlowDown ->
+      let curJump = roundJump $ game simState
+      in if curJump > 1
+        then do
+          let curGame = game simState
+          let newJump = max 1 $ curJump - 10
+          let game' = curGame { roundJump = newJump }
+          modify $ \st -> st { game = game' }
+        else do
+          let newTickDelay = curTickDelay + 10000
+          liftIO $ atomically $ writeTVar (tickDelay simState) newTickDelay
+          return ()
 
 drawUI :: (Controller b, Controller g) => SimulatorState b g -> [Widget Name]
 drawUI simState =
-  [ vBox[ C.center $ drawGrid (game simState)
-        ,      (padLeft (Pad 3) $ str "q: quit" )
-           <+> (padLeft (Pad 3) $ str "(-/+): Change speed")
+  [ vBox[ C.hCenter $ drawGrid (game simState)
+        , C.hCenter $ hBox [ padLeft (Pad 3) $ str "q: Quit"
+                           , padLeft (Pad 3) $ str "(-/+): Change Speed"
+                           , fill ' '
+                           , padRight (Pad 7) $ str $ "Round: " ++ (show . roundNum . game) simState
+                           ]
         ]
   ]
 

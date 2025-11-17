@@ -26,12 +26,16 @@ import           Fryxbots.Team
 data Game b g where
     Game :: forall b g. (Controller b, Controller g) =>
             { field :: Field b g
+            , roundNum :: Int
+            , roundJump :: Int
             } -> Game b g
 
 mkGame :: (Controller b, Controller g) => b -> g -> Field b g -> Game b g
-mkGame blueCont goldCont field = Game {
-  field = populateBots blueCont goldCont field
-}
+mkGame blueCont goldCont field = Game
+  { field = populateBots blueCont goldCont field
+  , roundNum = 0
+  , roundJump = 1
+  }
 
 botPlacements :: (Controller b, Controller g) => Field b g -> ([Pos], [Pos])
 botPlacements field = foldl addPos ([], []) allPos
@@ -58,7 +62,12 @@ populateBots blueCont goldCont field =
 executeRound :: (Controller b, Controller g) => Game b g -> Game b g
 executeRound game =
   let updateField = updateSensing . removeDeadBots . stepGoldBots . stepBlueBots
-  in game { field = updateField $ field game }
+      curRound = roundNum game
+      jump = roundJump game
+      updates = iterate updateField (field game)
+  in game { field = last $ take (jump + 1) updates
+          , roundNum = curRound + jump
+          }
 
 stepBlueBots :: (Controller b, Controller g) => Field b g -> Field b g
 stepBlueBots field = foldl step field $ Field.getBlueBots field
