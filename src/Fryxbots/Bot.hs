@@ -22,7 +22,7 @@ data Bot c where
           , sensing :: Sensing
           , state :: State
           , team :: Team
-          , hasFossil :: False
+          , hasFossil :: Bool
           , controller :: c
           } -> Bot c
 
@@ -33,7 +33,7 @@ mkBot id team controller = Bot
   , sensing = emptySensing
   , state = St.empty
   , team = team
-  , hasFossil = True
+  , hasFossil = False
   , controller = controller
   }
 
