@@ -25,6 +25,7 @@ data HexScan = OffMap | HexScan
   { beacon :: Team -> Maybe BeaconKind
   , isBuilding :: Bool
   , isBase :: Team -> Bool
+  , hasBot :: Team -> Bool
   , numFossils :: Int
   }
 
@@ -33,5 +34,6 @@ emptyScan = HexScan
   { beacon = \_ -> Nothing
   , isBuilding = False
   , isBase = \_ -> False
+  , hasBot = \_ -> False
   , numFossils = 0
   }

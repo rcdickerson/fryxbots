@@ -203,7 +203,7 @@ deleteBotById field botId = case lookupBotTeam field botId of
       Gold -> deleteGoldBotById field botId
 
 lookupBotTeam :: (Controller b, Controller g) =>
-                 Field b g -> Int -> Team
+                  Field b g -> Int -> Team
 lookupBotTeam field botId =
   case Map.lookup botId (blueBotsById field) of
     Just bot -> Bot.team bot
@@ -228,31 +228,32 @@ updateGoldBot field bot =
     Nothing  -> error $ "No bot registered with ID: " ++ show botId
     Just _ -> field { goldBotsById = Map.insert botId bot $ goldBotsById field }
 
-getBlueBots :: (Controller b, Controller g) =>
-               Field b g -> [Bot b]
+getBlueBots :: (Controller b, Controller g) => Field b g -> [Bot b]
 getBlueBots field = Map.elems $ blueBotsById field
 
-getGoldBots :: (Controller b, Controller g) =>
-               Field b g -> [Bot g]
+getGoldBots :: (Controller b, Controller g) => Field b g -> [Bot g]
 getGoldBots field = Map.elems $ goldBotsById field
 
-lookupBotPos :: (Controller b, Controller g) =>
-                Field b g -> Int -> Pos
+lookupBotPos :: (Controller b, Controller g) => Field b g -> Int -> Pos
 lookupBotPos field botId = case Map.lookup botId $ positionsByBot field of
   Nothing  -> error $ "No bot registered with ID: " ++ show botId
   Just pos -> pos
 
-isBlueBotAt :: (Controller b, Controller g) =>
-               Field b g -> Pos -> Bool
+isBlueBotAt :: (Controller b, Controller g) => Field b g -> Pos -> Bool
 isBlueBotAt field pos = case Map.lookup pos (botsByPosition field) of
   Nothing -> False
   Just botId -> Map.member botId (blueBotsById field)
 
-isGoldBotAt :: (Controller b, Controller g) =>
-               Field b g -> Pos -> Bool
+isGoldBotAt :: (Controller b, Controller g) => Field b g -> Pos -> Bool
 isGoldBotAt field pos = case Map.lookup pos (botsByPosition field) of
   Nothing -> False
   Just botId -> Map.member botId (goldBotsById field)
+
+isBotAt :: (Controller b, Controller g) => Field b g -> Pos -> Team -> Bool
+isBotAt field pos team =
+  case team of
+    Blue -> isBlueBotAt field pos
+    Gold -> isGoldBotAt field pos
 
 isBuildingAt :: (Controller b, Controller g) =>
                 Field b g -> Pos -> Bool
@@ -286,6 +287,7 @@ scanHex field pos =
         { Sense.beacon = \team -> beaconAt field team pos
         , Sense.isBuilding = isBuildingAt field pos
         , Sense.isBase = \team -> isBase field team pos
+        , Sense.hasBot = isBotAt field pos
         , Sense.numFossils = fromJust $ Map.lookup pos (fossils field)
         }
 
