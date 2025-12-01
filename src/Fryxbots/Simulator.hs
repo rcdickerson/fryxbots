@@ -17,7 +17,7 @@ import           Data.Text (pack)
 import           Fryxbots.Beacon
 import           Fryxbots.Bot.Controller
 import           Fryxbots.Bot.Facing
-import           Fryxbots.Field
+import           Fryxbots.Field hiding (blueScore, goldScore)
 import           Fryxbots.FieldParser
 import           Fryxbots.Game
 import           Fryxbots.Pos
@@ -110,6 +110,12 @@ drawUI simState =
                     , vLimit 1 $ hBox [ padLeft (Pad 3) $ str "q: Quit"
                            , padLeft (Pad 3) $ str "(-/+): Change Speed"
                            , fill ' '
+                           , str "Blue: "
+                           , str $ (show . blueScore . game) simState
+                           , withAttr (attrName "wallColor") (str " | ")
+                           , str "Gold: "
+                           , str $ (show . goldScore . game) simState
+                           , withAttr (attrName "wallColor") (str " | ")
                            , padRight (Pad 7) $ str $ "Round: " ++ (show . roundNum . game) simState
                            ]
                     ]

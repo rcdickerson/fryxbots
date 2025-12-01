@@ -6,11 +6,13 @@ module Fryxbots.Field
   , Field(..)
   , addBlueBot
   , addGoldBot
+  , blueScore
   , cellKind
   , deleteBotById
   , getBlueBots
   , getFossilCount
   , getGoldBots
+  , goldScore
   , isBlocked
   , isBlueBase
   , isGoldBase
@@ -103,6 +105,16 @@ setGoldBase :: (Controller b, Controller g) =>
 setGoldBase field pos = field {
   goldBase = Set.insert pos $ goldBase field
 }
+
+blueScore :: (Controller b, Controller g) => Field b g -> Int
+blueScore field =
+  let blueFossils = map (getFossilCount field) $ Set.toList (blueBase field)
+  in sum blueFossils
+
+goldScore :: (Controller b, Controller g) => Field b g -> Int
+goldScore field =
+  let goldFossils = map (getFossilCount field) $ Set.toList (goldBase field)
+  in sum goldFossils
 
 getFossilCount :: (Controller b, Controller g) =>
               Field b g -> Pos -> Int
