@@ -60,11 +60,25 @@ runSimulator worldFile blueController goldController = do
                                     }
       let buildVty = VCP.mkVty V.defaultConfig
       initialVty <- buildVty
-      _ <- customMain initialVty buildVty (Just chan) app simState
+      finalState <- customMain initialVty buildVty (Just chan) app simState
+
+      let blue = (blueScore . game) finalState
+      let gold = (goldScore . game) finalState
       putStrLn "Simulation complete!"
+      putStrLn $ "Blue: " ++ show blue
+      putStrLn $ "Gold: " ++ show gold
+      putStrLn $ if blue > gold then
+                   "Blue wins!"
+                 else if gold > blue then
+                   "Gold wins!"
+                 else
+                   "It's a tie!"
 
 handleEvent :: (Controller b, Controller g) => BrickEvent Name Tick -> EventM Name (SimulatorState b g) ()
-handleEvent (AppEvent Tick) = modify $ \st -> st { game = (executeRound . game) st }
+handleEvent (AppEvent Tick) = do
+  modify $ \st -> st { game = (executeRound . game) st }
+  st <- get
+  if (gameOver . game) st then halt else return ()
 handleEvent (VtyEvent (V.EvKey (V.KChar '-') [])) = changeSpeed SlowDown
 handleEvent (VtyEvent (V.EvKey (V.KChar '_') [])) = changeSpeed SlowDown
 handleEvent (VtyEvent (V.EvKey (V.KChar '=') [])) = changeSpeed SpeedUp

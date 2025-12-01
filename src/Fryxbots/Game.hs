@@ -4,6 +4,7 @@
 module Fryxbots.Game
   ( Game(..)
   , executeRound
+  , gameOver
   , mkGame
   ) where
 
@@ -40,6 +41,11 @@ mkGame blueCont goldCont field = Game
   , blueScore = 0
   , goldScore = 0
   }
+
+gameOver :: (Controller b, Controller g) => Game b g -> Bool
+gameOver game = roundNum game > 100000
+                || Field.numBlueBots (field game) < 1
+                || Field.numGoldBots (field game) < 1
 
 botPlacements :: (Controller b, Controller g) => Field b g -> ([Pos], [Pos])
 botPlacements field = foldl addPos ([], []) allPos

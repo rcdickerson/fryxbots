@@ -19,6 +19,8 @@ module Fryxbots.Field
   , lookupBotPos
   , lookupBotTeam
   , mkField
+  , numBlueBots
+  , numGoldBots
   , scanHex
   , setBotPos
   , setBlueBase
@@ -187,6 +189,12 @@ addGoldBot field bot pos =
       , botsByPosition = Map.insert pos botId $ botsByPosition field
       , positionsByBot = Map.insert botId pos $ positionsByBot field
       }
+
+numBlueBots :: (Controller b, Controller g) => Field b g -> Int
+numBlueBots = Map.size . blueBotsById
+
+numGoldBots :: (Controller b, Controller g) => Field b g -> Int
+numGoldBots = Map.size . goldBotsById
 
 deleteBlueBotById :: (Controller b, Controller g) =>
                       Field b g -> Int -> Field b g
