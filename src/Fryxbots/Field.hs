@@ -288,7 +288,9 @@ scanHex field pos =
         , Sense.isBuilding = isBuildingAt field pos
         , Sense.isBase = \team -> isBase field team pos
         , Sense.hasBot = isBotAt field pos
-        , Sense.numFossils = fromJust $ Map.lookup pos (fossils field)
+        , Sense.numFossils = case Map.lookup pos (fossils field) of
+                              Nothing -> 0
+                              Just n  -> n
         }
 
 cellKind :: (Controller b, Controller g) =>
