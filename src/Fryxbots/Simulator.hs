@@ -64,15 +64,13 @@ runSimulator worldFile blueController goldController = do
 
       let blue = (blueScore . game) finalState
       let gold = (goldScore . game) finalState
+      putStrLn $ (showField . Fryxbots.Game.field . game) finalState
       putStrLn "Simulation complete!"
       putStrLn $ "Blue: " ++ show blue
       putStrLn $ "Gold: " ++ show gold
-      putStrLn $ if blue > gold then
-                   "Blue wins!"
-                 else if gold > blue then
-                   "Gold wins!"
-                 else
-                   "It's a tie!"
+      putStrLn $ if blue > gold then "Blue wins!"
+                 else if gold > blue then "Gold wins!"
+                 else "It's a tie!"
 
 handleEvent :: (Controller b, Controller g) => BrickEvent Name Tick -> EventM Name (SimulatorState b g) ()
 handleEvent (AppEvent Tick) = do

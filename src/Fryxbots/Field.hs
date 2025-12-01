@@ -360,7 +360,7 @@ showCell field pos = case cellKind field pos of
 showRow :: (Controller b, Controller g) =>
            Field b g -> Int -> String
 showRow field row =
-  let cols = [0..width field]
+  let cols = [0..(width field) - 1]
       rowChars = map (\col -> showCell field $ mkPos col row) cols
       rowString = intersperse ' ' rowChars
   in if row `mod` 2 == 1 then ' ':rowString else rowString
@@ -368,5 +368,5 @@ showRow field row =
 showField :: (Controller b, Controller g) =>
              Field b g -> String
 showField field =
-  let rows = [0..height field]
+  let rows = [0..(height field) - 1]
   in intercalate "\n" $ map (showRow field) rows
