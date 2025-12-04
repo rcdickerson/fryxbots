@@ -17,6 +17,7 @@ data BeaconKind = Kind1
                 | Kind4
                 | Kind5
                 | Kind6
+                deriving (Eq, Ord, Show)
 
 mkBeacon :: Team -> BeaconKind -> Beacon
 mkBeacon team kind = Beacon { team = team, kind = kind }
